@@ -1,0 +1,199 @@
+# devops: hello world
+
+parameters:
+  - name: MODE
+    displayName: Running Test or Prod mode 
+    default: 'QA'
+    type: string
+    values: 
+      - 'QA'
+      - 'DEV'
+      - 'TEST'
+      - 'STAGE'
+      - 'RPOD'
+  - name: VM_TYPES
+    displayName: VM Types
+    type: string
+    values:
+    - docker
+    - win
+    - mssql
+    - mariadb
+  - name: myNumber
+    type: number
+    default: 2
+    values:
+    - 1
+    - 2
+    - 4
+    - 8
+    - 16
+  - name: QA Verified
+    type: boolean
+    default: true
+
+
+# Set variables
+variables:
+  TEST: ${{ parameters.MODE }}
+  group: "hello-001"
+
+trigger:
+- main
+
+pool: AZP-Pool
+
+stages:
+- stage: Stage1
+  displayName: Stage 1
+  jobs:
+  - job: init
+    displayName: Display the file structure
+    steps: 
+    - script: |
+        $(System.DefaultWorkingDirectory)/bin/drawit.sh peanut
+        $(System.DefaultWorkingDirectory)/bin/drawit.sh ansible
+        dir
+        pwd
+        echo '$(Agent.BuildDirectory)'
+        echo '$(System.DefaultWorkingDirectory)'
+        exit 1 
+  - job: variables
+    displayName: Show variables
+    steps: 
+    - ${{ each parameter in parameters }}:
+      - script: |
+          echo ${{ parameter.Key }} ":" ${{ parameter.Value }} ":" $(foo)
+
+- stage: Stage2
+  displayName: Create Resource Groups
+  jobs:
+  - job: rgs
+    displayName: Create Resource Groups, Virtual Networks and Subnets
+    steps: 
+    - script: |
+        perl 1.create-rg-vnet-snet.pl
+
+- stage: Stage3
+  displayName: Peering Virtual Networks
+  jobs:
+  - job: peerings
+    displayName: Peering Virtual Networks
+    steps: 
+    - script: |
+        perl 2.run-peering.pl
+
+- stage: Stage4
+  displayName: Generate VM Artifacts
+  jobs:
+  - job: artifacts
+    displayName: Generate VM Artifacts
+    steps: 
+    - script: |
+        perl 3.create-vms-artifacts.pl
+
+- stage: Stage5
+  displayName: Create Virtual Machines
+  jobs:
+  - job: mariadb
+    displayName: Create MariaDB VM 
+    steps: 
+    - bash: |
+        for d in `ls -d /tmp/workspace/mariadb/*/`
+        do
+          cd $d/tf
+          terraform init
+          terraform apply -auto-approve
+        done
+  - job: mssql
+    displayName: Create MSSQL VM 
+    steps: 
+    - bash: |
+        for d in `ls -d /tmp/workspace/mssql/*/`
+        do
+          cd $d/tf
+          terraform init
+          terraform apply -auto-approve
+        done
+  - job: win
+    displayName: Create Windows VM 
+    steps: 
+    - bash: |
+        for d in `ls -d /tmp/workspace/win/*/`
+        do
+          cd $d/tf
+          terraform init
+          terraform apply -auto-approve
+        done
+  - job: docker
+    displayName: Create IaC VM 
+    steps: 
+    - bash: |
+        for d in `ls -d /tmp/workspace/docker/*/`
+        do
+          cd $d/tf
+          terraform init
+          terraform apply -auto-approve
+        done
+
+- stage: Stage6
+  displayName: Application Installations
+  jobs:
+  - job: mariadb
+    displayName: Create MariaDB System
+    steps: 
+    - bash: |
+        for d in `ls -d /tmp/workspace/mariadb/*/`
+        do
+          cd $d/ansible
+          ansible-playbook -i hosts playbook.yml
+        done
+  - job: mssql
+    displayName: Create MSSQL DB System
+    steps: 
+    - bash: |
+        for d in `ls -d /tmp/workspace/mssql/*/`
+        do
+          cd $d/ansible
+          ansible-playbook -i hosts playbook.yml
+        done
+  - job: win
+    displayName: Create Windows Application
+    steps: 
+    - bash: |
+        for d in `ls -d /tmp/workspace/win/*/`
+        do
+          echo $d
+        done
+  - job: docker
+    displayName: Create IaC Environment
+    steps: 
+    - bash: |
+        for d in `ls -d /tmp/workspace/docker/*/`
+        do
+          cd $d/ansible
+          ansible-playbook -i hosts playbook.yml
+        done
+
+- stage: Stage7
+  displayName: Create DNS Links
+  jobs:
+  - job: dns
+    displayName: Create Private DNS Links
+    steps: 
+    - script: |
+        perl 4.private-dns-link.pl
+
+- stage: Stage8
+  displayName: Clean Up
+  jobs:
+  - job: clean
+    displayName: Clean Up 
+    steps: 
+    - script: |
+        rm -rf /tmp/workspace
+
+
+
+
+
