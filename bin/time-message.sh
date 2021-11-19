@@ -7,7 +7,7 @@ reg=$2
 pid=$3
 n=$4
 
-read -n 1 -s -r -p "Delete Env Instance $yellow$env $reg$reset. Press any key to continue"
+# read -n 1 -s -r -p "Delete Env Instance $yellow$env $reg$reset. Press any key to continue"
 
 while true
 do
