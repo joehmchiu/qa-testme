@@ -10,16 +10,6 @@ az group list | jq -r \
 
 
 
-# echo 
-# echo 
-# echo "DNS Links status:"
-# az network private-dns link vnet list -g rg-vpn-nonprod-001 -z qa.ohq.com.au | jq '.[] | {name: .name, status: .provisioningState}'
-# 
-# echo 
-# echo 
-# echo "DNS Zone status:"
-# az network private-dns zone list -g rg-vpn-nonprod-001  | jq '.[] | {name: .name, status: .provisioningState}'
-
 echo 
 echo 
 echo "VHub connection status:"
