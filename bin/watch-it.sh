@@ -6,7 +6,7 @@ echo "RG status:"
 # az group list | jq '.[] | select(.name | test("-delme|-qa|-uat|-test|-stage")) | {name: .name, status: .properties.provisioningState} | join (" => ")'
 # az group list | jq '.[] | select(.name | test("-delme|-qa|-uat|-test|-stage|-prod")) | (.name + " => " + .properties.provisioningState)'
 az group list | jq -r \
-  '("Name\tStatus"),("----\t------"),(.[] | .name+"\t"+.properties.provisioningState)' | column -t
+  '("Name\tStatus"),("----\t------"),(.[] | select(.name | test("-delme|-qa|-uat|-test|-stage|-prod")) | .name+"\t"+.properties.provisioningState)' | column -t
 
 
 
