@@ -7,9 +7,6 @@ reg=$2
 pid=$3
 n=$4
 
-echo "$white foo bar "
-exit;
-
 read -n 1 -s -r -p "Delete Env Instance $yellow$env $reg$reset. Press any key to continue"
 
 while true

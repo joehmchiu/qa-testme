@@ -9,9 +9,11 @@ use config;
 my $c = new config;
 my $timeout = 5;
 
+chdir "$root/bin";
+
 exit printf "Instance %s in $reg is done!\n", done if done;
 
-system "sh bin/time-message.sh $env $reg $$ $timeout";
+system "bash time-message.sh $env $reg $$ $timeout";
 
 printf "\nRollback instance %s in $reg!\n", $env;
 
@@ -19,7 +21,6 @@ printf "\nRollback instance %s in $reg!\n", $env;
 `az account set --subscription "Non-Production Subscription"`;
 
 foreach my $rg (rg, mrg) {
-  chdir "$root/bin";
   print "-- Remove $rg in the background\n";
   my $cmd = qq(sh rm-rg.sh $rg);
   system $cmd;
