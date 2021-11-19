@@ -6,8 +6,7 @@ abs=$(realpath $0)
 dir=$(dirname $abs)
 
 cd $dir/../
-$dir/../bin/drawit.sh hello
-$dir/../bin/drawit.sh azp
+$dir/../bin/drawit.sh terraform
 
 az account set --subscription "Non-Production Subscription"
 perl 1.create-rg-vnet-snet.pl $env $reg
