@@ -7,6 +7,7 @@ dir=$(dirname $abs)
 
 cd $dir/../
 
+$dir/../bin/drawit.sh cli
 az account set --subscription "Non-Production Subscription"
 perl 4.hub-vnet-connection.pl $env $reg
 
