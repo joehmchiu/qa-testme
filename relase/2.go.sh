@@ -5,5 +5,7 @@ reg=${2:-"uk"}
 abs=$(realpath $0)
 dir=$(dirname $abs)
 
+cd $dir/../
+
 az account set --subscription "Non-Production Subscription"
-perl $dir/../2.create-rg-mgmt-vnet-snet.pl $env $reg
+perl 2.create-rg-mgmt-vnet-snet.pl $env $reg

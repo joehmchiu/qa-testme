@@ -5,6 +5,8 @@ reg=${2:-"uk"}
 abs=$(realpath $0)
 dir=$(dirname $abs)
 
+cd $dir/../
+
 az account set --subscription "Non-Production Subscription"
-perl $dir/../5.hub-mgmt-vnet-connection.pl $env $reg
+perl 5.hub-mgmt-vnet-connection.pl $env $reg
 
